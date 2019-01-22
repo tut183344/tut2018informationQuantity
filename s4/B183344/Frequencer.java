@@ -2,19 +2,18 @@ package s4.B183344;
 import java.lang.*;
 import s4.specification.*;
 
-
 /*package s4.specification;
 
-public interface FrequencerInterface {     // This interface provides the design for frequency counter.
-    void setTarget(byte  target[]); // set the data to search.
-    void setSpace(byte  space[]);  // set the data to be searched target from.
-    int frequency(); //It return -1, when TARGET is not set or TARGET's length is zero
-                    //Otherwise, it return 0, when SPACE is not set or SPACE's length is zero
-                    //Otherwise, get the frequency of TAGET in SPACE
-    int subByteFrequency(int start, int end);
-    // get the frequency of subByte of taget, i.e target[start], taget[start+1], ... , target[end-1].
-    // For the incorrect value of START or END, the behavior is undefined.
-}
+  public interface FrequencerInterface {     // This interface provides the design for frequency counter.
+  void setTarget(byte  target[]); // set the data to search.
+  void setSpace(byte  space[]);  // set the data to be searched target from.
+  int frequency(); //It return -1, when TARGET is not set or TARGET's length is zero
+  //Otherwise, it return 0, when SPACE is not set or SPACE's length is zero
+  //Otherwise, get the frequency of TAGET in SPACE
+  int subByteFrequency(int start, int end);
+  // get the frequency of subByte of taget, i.e target[start], taget[start+1], ... , target[end-1].
+  // For the incorrect value of START or END, the behavior is undefined.
+  }
 */
 
 
@@ -115,8 +114,8 @@ public class Frequencer implements FrequencerInterface{
     private int targetCompare(int i, int j, int end) {
 	// comparing suffix_i and target_j_end by dictonary order with limitation of length;
 	// if the beginning of suffix_i matches target_i_end, and suffix is longer than target  it returns 0;
-	// if suffix_i > target_i_end it return 1;
-	// if suffix_i < target_i_end it return -1
+	// if suffix_i > target_j_end it return 1;
+	// if suffix_i < target_j_end it return -1
 	// It is not implemented yet.
 	// It should be used to search the apropriate index of some suffix.
 	// Example of search
@@ -133,27 +132,31 @@ public class Frequencer implements FrequencerInterface{
 	//
 	// ****  Please write code here... ***
 	//
-	while (j < end)
+	int s_i = suffixArray[i];
+	int n = mySpace.length - s_i;
+	
+	if(n > end - j )
 	    {
-		if(mySpace.length <= i)
-		    {
-			return -1;
-		    }
-		if(mySpace[suffixArray[i]] == myTarget[j])
-		    {
-			i++;
-			j++;
-			continue;
-		    }
-		else if(mySpace[suffixArray[i]] > myTarget[j])
+		n = end - j;
+	    }
+
+	for(int k = 0; k < n; k++)
+	    {
+		if(mySpace[s_i + k] > myTarget[j + k])
 		    {
 			return 1;
 		    }
-		else
+		if(mySpace[s_i + k] < myTarget[j + k])
 		    {
 			return -1;
 		    }
 	    }
+
+	if(n < end - j)
+	    {
+		return -1;
+	    }
+
 	return 0;
     }
 
@@ -165,8 +168,24 @@ public class Frequencer implements FrequencerInterface{
 	//
 	// ****  Please write code here... ***
 	//
-
-	return suffixArray.length; // This line should be modified.
+	int min = 0;
+	int mid = 0;
+        int max = mySpace.length;
+	int compare_result = 0;
+        while(max - min > 1)
+	    {
+		mid = (max + min) / 2;
+		compare_result = targetCompare(mid, start, end);
+		if(compare_result >= 0)
+		    {
+			max = mid;
+		    }
+		else
+		    {
+			min = mid;
+		    }
+	    }
+	return max;
     }
 
     private int subByteEndIndex(int start, int end) {
@@ -177,20 +196,37 @@ public class Frequencer implements FrequencerInterface{
 	//
 	// ****  Please write code here... ***
 	//
-	return suffixArray.length; // This line should be modified.
+	int min = 0;
+	int mid = 0;
+        int max = mySpace.length;
+	int compare_result = 0;
+        while(max - min > 1)
+	    {
+		mid = (max + min) / 2;
+		compare_result = targetCompare(mid, start, end);
+		if(compare_result <= 0)
+		    {
+			min = mid;
+		    }
+		else
+		    {
+			max = mid;
+		    }
+	    }
+	return max;
     }
 
     public int subByteFrequency(int start, int end) {
 	/* This method be work as follows, but
-	int spaceLength = mySpace.length;
-	int count = 0;
-	for(int offset = 0; offset< spaceLength - (end - start); offset++) {
-	    boolean abort = false;
-	    for(int i = 0; i< (end - start); i++) {
-		if(myTarget[start+i] != mySpace[offset+i]) { abort = true; break; }
-	    }
-	    if(abort == false) { count++; }
-	}
+	   int spaceLength = mySpace.length;
+	   int count = 0;
+	   for(int offset = 0; offset< spaceLength - (end - start); offset++) {
+	   boolean abort = false;
+	   for(int i = 0; i< (end - start); i++) {
+	   if(myTarget[start+i] != mySpace[offset+i]) { abort = true; break; }
+	   }
+	   if(abort == false) { count++; }
+	   }
 	*/
 	int first = subByteStartIndex(start, end);
 	int last1 = subByteEndIndex(start, end);
@@ -227,16 +263,48 @@ public class Frequencer implements FrequencerInterface{
 	       A:o Hi Ho
 	    */
 
-	    frequencerObject.setTarget("H".getBytes());
+	    frequencerObject.setTarget("Ho".getBytes());
 	    //
 	    // ****  Please write code to check subByteStartIndex, and subByteEndIndex
 	    //
+	    //TEST: subByteStartIndex
+	    int result_subByteStartIndex = frequencerObject.subByteStartIndex(0, "Ho".getBytes().length);
+	    System.out.print("subByteStartIndex = " + result_subByteStartIndex + " ");
+	    if(5 == result_subByteStartIndex) { System.out.println("OK"); } else {System.out.println("WRONG"); }
+	    
+	    frequencerObject.setTarget("Ho ".getBytes());
+	    result_subByteStartIndex = frequencerObject.subByteStartIndex(0, "Ho ".getBytes().length);
+	    System.out.print("subByteStartIndex = " + result_subByteStartIndex + " ");
+	    if(6 == result_subByteStartIndex) { System.out.println("OK"); } else {System.out.println("WRONG"); }
 
+	    //TEST: subByteEndIndex
+	    int result_subByteEndIndex = frequencerObject.subByteEndIndex(0, "Ho".getBytes().length);
+	    System.out.print("subByteEndIndex = " + result_subByteEndIndex + " ");
+	    if(7 == result_subByteEndIndex) { System.out.println("OK"); } else {System.out.println("WRONG"); }
+	    
+	    frequencerObject.setTarget("Ho ".getBytes());
+	    result_subByteEndIndex = frequencerObject.subByteEndIndex(0, "Ho ".getBytes().length);
+	    System.out.print("subByteEndIndex = " + result_subByteEndIndex + " ");
+	    if(7 == result_subByteEndIndex) { System.out.println("OK"); } else {System.out.println("WRONG"); }
+
+	    //TEST: frequency
+	    frequencerObject.setTarget("H".getBytes());
 	    int result = frequencerObject.frequency();
 	    System.out.print("Freq = "+ result+" ");
 	    if(4 == result) { System.out.println("OK"); } else {System.out.println("WRONG"); }
+	    
+	    frequencerObject.setTarget("Ho".getBytes());
+	    result = frequencerObject.frequency();
+	    System.out.print("Freq = "+ result+" ");
+	    if(2 == result) { System.out.println("OK"); } else {System.out.println("WRONG"); }
+
+	    frequencerObject.setTarget("Ho ".getBytes());
+	    result = frequencerObject.frequency();
+	    System.out.print("Freq = "+ result+" ");
+	    if(1 == result) { System.out.println("OK"); } else {System.out.println("WRONG"); }
 	}
 	catch(Exception e) {
+	    System.out.println(e);
 	    System.out.println("STOP");
 	}
     }
